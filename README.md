@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Gerenciamento de Usuários
 
-## Getting Started
+Este é um sistema de gerenciamento de usuários construído com Next.js, Prisma e Docker. Ele fornece uma base para aplicações que requerem autenticação de usuários e controle de acesso baseado em funções.
 
-First, run the development server:
+## Tecnologias Utilizadas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+*   **Next.js:** Um framework React para construir aplicações web full-stack.
+*   **Prisma:** Um ORM para Node.js e TypeScript.
+*   **Docker:** Uma plataforma para desenvolver, enviar e executar aplicações em contêineres.
+*   **TypeScript:** Um superset tipado de JavaScript que compila para JavaScript puro.
+*   **SQLite:** Uma biblioteca em linguagem C que implementa um motor de banco de dados SQL pequeno, rápido, autocontido, de alta confiabilidade e com todos os recursos.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Executando com Docker (Recomendado)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Este projeto está configurado para ser executado em um contêiner Docker. Para construir e executar a aplicação, siga estes passos:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1.  Clone o repositório:
+    ```sh
+    git clone https://github.com/Dev-Adrianoo/User-management.git
+    ```
+2.  Navegue até o diretório do projeto:
+    ```sh
+    cd User-management
+    ```
+3.  Execute o docker-compose:
+    ```sh
+    docker-compose up -d --build
+    ```
+A aplicação estará disponível em `http://localhost:3000`.
 
-## Learn More
+## Executando Localmente
 
-To learn more about Next.js, take a look at the following resources:
+Se preferir executar o projeto localmente sem Docker, siga os passos abaixo.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Pré-requisitos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+*   Node.js (versão 18 ou superior)
+*   npm
+    ```sh
+    npm install npm@latest -g
+    ```
 
-## Deploy on Vercel
+### Instalação
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  Clone o repositório:
+    ```sh
+    git clone https://github.com/Dev-Adrianoo/User-management.git
+    ```
+2.  Instale as dependências:
+    ```sh
+    npm install
+    ```
+3.  Inicialize o banco de dados:
+    ```sh
+    npx prisma migrate dev --name init
+    ```
+4.  Inicie o servidor de desenvolvimento:
+    ```sh
+    npm run dev
+    ```
+A aplicação estará disponível em `http://localhost:3000`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Banco de Dados
+
+Usamos o Prisma como nosso ORM para interagir com o banco de dados. O schema do banco de dados é definido em `prisma/schema.prisma`.
+
+Estamos usando um banco de dados SQLite para desenvolvimento local. O arquivo do banco de dados está localizado em `prisma/dev.db`.
+
+### Modelos
+
+#### Usuário
+
+O modelo `User` possui os seguintes campos:
+
+*   `id`: Um identificador único para o usuário.
+*   `nome`: O nome do usuário.
+*   `email`: O endereço de e-mail do usuário (deve ser único).
+*   `senhaHash`: A senha hash do usuário.
+*   `cep`: O CEP do usuário (opcional).
+*   `estado`: O estado do usuário (opcional).
+*   `cidade`: A cidade do usuário (opcional).
+*   `role`: A função do usuário, que pode ser `USER` ou `ADMIN`.
+*   `createdAt`: A data e hora em que o usuário foi criado.
+*   `updatedAt`: A data e hora em que o usuário foi atualizado pela última vez.
+
+## Autenticação
+
+A autenticação é tratada usando um sistema baseado em funções. O `enum Role` em `prisma/schema.prisma` define as funções disponíveis:
+
+*   `USER`: Um usuário padrão com permissões limitadas.
+*   `ADMIN`: Um administrador com permissões elevadas.
+
+Esta abordagem permite uma maneira flexível e escalável de gerenciar as permissões dos usuários em toda a aplicação.
