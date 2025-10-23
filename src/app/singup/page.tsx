@@ -1,3 +1,5 @@
+"use client";
+
 import SingUpForm from "@/components/SingUpForm";
 import React from "react";
 

@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/generated/prisma": ["./src/generated/prisma"]
     }
   },
   "include": [
@@ -31,4 +32,5 @@
     "**/*.mts"
   ],
   "exclude": ["node_modules"]
+
 }

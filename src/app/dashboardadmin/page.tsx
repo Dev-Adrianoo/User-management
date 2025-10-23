@@ -1,3 +1,5 @@
+"use client";
+
 import DashBoardAdmin from '@/components/DashBoardAdmin';
 import React from 'react';
 

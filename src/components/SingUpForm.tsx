@@ -7,6 +7,16 @@ export default function SingUpForm() {
   return (
     <form className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-full">
       <div className="w-full">
+        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Nome *</label>
+        <input
+          type="text"
+          id="name"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          placeholder="Seu nome completo"
+          required
+        />
+      </div>
+      <div className="w-full">
         <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">Email *</label>
         <input
           type="email"
