@@ -90,36 +90,43 @@ reset:
 	  echo "$(GREEN)Banco resetado$(RESET)"; \
 	fi
 
-migrate: ## Cria nova migration
+## Cria nova migration
+migrate: 
 	@read -p "Nome da migration: " name; \
 	echo "$(YELLOW)Criando migration: $$name$(RESET)"; \
 	$(COMPOSE) exec $(SERVICE) npx prisma migrate dev --name $$name; \
 	echo "$(GREEN)Migration criada$(RESET)"
 
-schema-update: ## Atualiza Prisma Client após alterar schema.prisma
+## Atualiza Prisma Client após alterar schema.prisma
+schema-update: 
 	@echo "$(YELLOW)Regenerando Prisma Client...$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) npx prisma generate
 	@echo "$(GREEN)Prisma Client atualizado$(RESET)"
 	@echo "$(BLUE)Dica: Execute 'make restart' para aplicar as mudanças$(RESET)"
 
-studio: ## Abre Prisma Studio
+## Abre Prisma Studio
+studio: 
 	@echo "$(BLUE)Abrindo Prisma Studio...$(RESET)"
 	@echo "$(BLUE)Acesse: http://localhost:5555$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) npx prisma studio
 
-logs: ## Exibe logs em tempo real
+## Exibe logs em tempo real
+logs: 
 	@echo "$(YELLOW)Acompanhando logs (Ctrl+C para sair)...$(RESET)"
 	@$(COMPOSE) logs -f
 
-shell: ## Acessa shell do container
+## Acessa shell do container
+shell: 
 	@echo "$(YELLOW)Acessando shell do container...$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) sh
 
-status: ## Status dos containers
+## Status dos containers
+status: 
 	@echo "$(BLUE)Status dos containers:$(RESET)"
 	@$(COMPOSE) ps
 
-rebuild: ## Reconstrói a imagem
+## Reconstrói a imagem
+rebuild: 
 	@echo "$(YELLOW)Reconstruindo imagem...$(RESET)"
 	@$(COMPOSE) down
 	@$(COMPOSE) build --no-cache
@@ -128,7 +135,8 @@ rebuild: ## Reconstrói a imagem
 	@$(MAKE) status
 	@echo "$(GREEN)Rebuild concluído$(RESET)"
 
-clean: ## Remove tudo (containers, volumes, imagens)
+## Remove tudo (containers, volumes, imagens)
+clean: 
 	@echo "$(RED)ATENÇÃO: Containers, volumes e imagens serão removidos!$(RESET)"
 	@read -p "Confirmar? (s/n) " -n 1 -r; \
 	echo; \
@@ -138,7 +146,8 @@ clean: ## Remove tudo (containers, volumes, imagens)
 	  echo "$(GREEN)Limpeza concluída$(RESET)"; \
 	fi
 
-install: ## Instala pacote npm
+## Instala pacote npm
+install: 
 	@read -p "Nome do pacote: " pkg; \
 	read -p "Dev dependency? (s/n) " -n 1 -r; \
 	echo; \
