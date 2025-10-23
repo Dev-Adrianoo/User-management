@@ -7,7 +7,7 @@ export interface LoginCredentials {
   password: string
 }
 
-export interface SingupData {
+export interface SignupData {
   name: string
   email: string
   password: string
@@ -38,7 +38,7 @@ export interface AuthContextType {
   isAuthenticated: boolean
   login: (credentials: LoginCredentials) => Promise<void>
   logout: () => Promise<void>
-  register: (data: SingupData) => Promise<void>
+  register: (data: SignupData) => Promise<void>
   refreshUser: () => Promise<void>
 }
 

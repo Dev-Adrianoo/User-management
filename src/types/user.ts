@@ -1,14 +1,13 @@
-export enum UserRole {
-  USER = "USER",
-  ADMIN = "ADMIN",
-}
+import { Role as PrismaRole } from "@prisma/client";
+
+export type UserRole = PrismaRole;
 
 export interface User {
   id: string
-  name: string
+  nome: string
   email: string
   // nunca expor password no front-end.
-  password: string
+  senhaHash: string
   role:  UserRole
   cep?: string | null
   estado?: string | null 
@@ -25,7 +24,7 @@ export interface User {
 
 export interface PublicUser {
   id: string
-  name: string
+  nome: string
   email: string
   role: UserRole
   cep?: string | null
@@ -38,7 +37,7 @@ export interface PublicUser {
 // Dados para atualizar um usuário (admin)
 
 export interface UpdateUserDTO {
-  name?: string
+  nome?: string
   email?: string
   cep?: string
   estado?: string

@@ -1,6 +1,6 @@
 "use client";
 
-import  LoginForm  from "@/components/LoginForm";
+import  LoginForm  from "@/components/forms/login-form";
 import React from "react";
 
 

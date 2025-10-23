@@ -1,6 +1,6 @@
 "use client";
 
-import DashBoardAdmin from '@/components/DashBoardAdmin';
+import DashBoardAdmin from '@/components/ui/DashBoardAdmin';
 import React from 'react';
 
 export default function DashboardAdminPage() {

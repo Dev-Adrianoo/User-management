@@ -1,4 +1,3 @@
-
 // Resposta padrão da API ( SUCESSO )
 
 export interface ApiSuccessResponse<T = any> {
@@ -14,7 +13,6 @@ export interface ApiErrorResponse {
   details?: any
 }
 
-
 // Resposta generica da api
 
 export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse
@@ -25,7 +23,6 @@ export interface CepData {
   cidade: string
   estado: string
 }
-
 
 // RESPOSTA DA API DE CEP
 
