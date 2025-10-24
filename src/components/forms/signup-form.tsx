@@ -9,6 +9,8 @@ import { useCep } from '@/hooks/use-cep';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, SignupData } from '@/services/validations/auth';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function SignupForm() {
   const router = useRouter();
@@ -48,21 +50,15 @@ export default function SignupForm() {
     try {
       const { confirmPassword, ...payload } = data;
 
-      console.log('PAYLOAD ENVIADO:', payload);
-
       const response = await api.post('/api/auth/register', payload);
-
       localStorage.setItem('token', response.data.token);
-
       toast.success('Cadastro realizado com sucesso!');
 
       setTimeout(() => {
-        window.location.href = '/dashboard'; 
+        window.location.href = '/dashboard';
       }, 500);
 
     } catch (error: any) {
-      console.log('ERRO COMPLETO:', error.response?.data);
-
       if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
         error.response.data.errors.forEach((err: { field: string; message: string }) => {
           setError(err.field as keyof SignupData, { type: 'manual', message: err.message });
@@ -77,139 +73,119 @@ export default function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-full">
-      <div className="w-full">
-        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-          Nome <span className='text-orange-700'>*</span>
-        </label>
-        <input
-          type="text"
-          id="name"
-          {...register('name')}
-          className={`bg-gray-50 border ${errors.name ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-          placeholder="Seu nome completo"
-          disabled={isSubmitting}
-        />
-        {errors.name && <span className="text-xs text-red-500 mt-1">{errors.name.message}</span>}
-      </div>
-      <div className="w-full">
-        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-          Email <span className='text-orange-700'>*</span>
-        </label>
-        <input
-          type="email"
-          id="email"
-          {...register('email')}
-          className={`bg-gray-50 border ${errors.email ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-          placeholder="nome@email.com"
-          disabled={isSubmitting}
-        />
-      </div>
-      {errors.email && <span className="text-xs text-red-500 mt-1">{errors.email.message}</span>}
-      <div className="w-full">
-        <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-          Senha <span className='text-orange-700'>*</span>
-        </label>
-        <input
-          type="password"
-          id="password"
-          {...register('password')}
-          className={`bg-gray-50 border ${errors.password ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-          placeholder='******'
-          disabled={isSubmitting}
-        />
-        {errors.password && <span className="text-xs text-red-500 mt-1">{errors.password.message}</span>}
-        {!errors.password && (
-          <span className='text-xs text-gray-600'>Mínimo 8 caracteres, inclua letras e números</span>
-        )}
-      </div>
-
-      <div className="w-full">
-        <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium text-gray-900 dark:text-black">
-          Confirmar Senha <span className='text-orange-700'>*</span>
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          {...register('confirmPassword')}
-          className={`bg-gray-50 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-          placeholder='******'
-          disabled={isSubmitting}
-        />
-        {errors.confirmPassword && <span className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</span>}
-      </div>
-
-      <div className="w-full">
-        <label htmlFor="cep" className='block mb-2 text-sm font-medium text-gray-900 dark:text-black'>CEP</label>
-        <input
-          type="text"
-          id='cep'
-          {...register('cep', {
-            onChange: (e) => {
-              let value = e.target.value.replace(/\D/g, '');
-              if (value.length > 5) {
-                value = value.substring(0, 5) + '-' + value.substring(5, 8);
-              }
-              setValue('cep', value, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-            },
-          })}
-          className={`bg-gray-50 border ${errors.cep ? 'border-red-500' : 'border-gray-300'} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:focus:border-blue-500 block w-full p-2.5`}
-          placeholder='00000-000'
-          maxLength={9}
-          disabled={isSubmitting || isCepLoading}
-        />
-
-        {errors.cep && <span className="text-xs text-red-500 mt-1">{errors.cep.message}</span>}
-        {!errors.cep && (
-          <span className='text-xs text-gray-600'>
-            Não sabe seu CEP?{' '}
-            <a
-              href="https://buscacepinter.correios.com.br/app/endereco/index.php"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-blue-700 hover:underline"
-            >
-              Clique aqui
-            </a>
-          </span>
-        )}
-      </div>
-      <div className="flex w-full gap-4">
-        <div className="w-full">
-          <label htmlFor="estado" className='block mb-2 text-sm font-medium text-gray-900 dark:text-black'>Estado</label>
-          <input
-            type="text"
-            id='estado'
-            {...register('estado')}
-            className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
-            placeholder='UF'
-            maxLength={2}
-            disabled={isSubmitting}
-          />
-          {errors.estado && <span className="text-xs text-red-500 mt-1">{errors.estado.message}</span>}
-        </div>
-        <div className="w-full">
-          <label htmlFor="cidade" className='block mb-2 text-sm font-medium text-gray-900 dark:text-black'>Cidade</label>
-          <input
-            type="text"
-            id='cidade'
-            {...register('cidade')}
-            className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
-            placeholder='Sua cidade'
-            disabled={isSubmitting}
-          />
-          {errors.cidade && <span className="text-xs text-red-500 mt-1">{errors.cidade.message}</span>}
-        </div>
-      </div>
-      <button
-        type="submit"
+      <Input
+        id="name"
+        label="Nome"
+        type="text"
+        placeholder="Seu nome completo"
+        required
+        error={errors.name?.message}
         disabled={isSubmitting}
-        className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+        {...register('name')}
+      />
 
+      <Input
+        id="email"
+        label="Email"
+        type="email"
+        placeholder="nome@email.com"
+        required
+        error={errors.email?.message}
+        disabled={isSubmitting}
+        {...register('email')}
+      />
+
+      <Input
+        id="password"
+        label="Senha"
+        type="password"
+        placeholder="******"
+        required
+        error={errors.password?.message}
+        helperText={!errors.password && "Mínimo 8 caracteres, inclua letras e números"}
+        disabled={isSubmitting}
+        {...register('password')}
+      />
+
+      <Input
+        id="confirmPassword"
+        label="Confirmar Senha"
+        type="password"
+        placeholder="******"
+        required
+        error={errors.confirmPassword?.message}
+        disabled={isSubmitting}
+        {...register('confirmPassword')}
+      />
+
+      <Input
+        id="cep"
+        label="CEP"
+        type="text"
+        placeholder="00000-000"
+        maxLength={9}
+        error={errors.cep?.message}
+        helperText={
+          !errors.cep && (
+            <>
+              Não sabe seu CEP?{' '}
+              <a
+                href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-blue-700 hover:underline"
+              >
+                Clique aqui
+              </a>
+            </>
+          )
+        }
+        disabled={isSubmitting || isCepLoading}
+        {...register('cep', {
+          onChange: (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+              value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            setValue('cep', value, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+          },
+        })}
+      />
+
+      <div className="flex w-full gap-4">
+        <Input
+          id="estado"
+          label="Estado"
+          type="text"
+          placeholder="UF"
+          maxLength={2}
+          error={errors.estado?.message}
+          disabled={isSubmitting}
+          {...register('estado')}
+        />
+
+        <Input
+          id="cidade"
+          label="Cidade"
+          type="text"
+          placeholder="Sua cidade"
+          error={errors.cidade?.message}
+          disabled={isSubmitting}
+          {...register('cidade')}
+        />
+      </div>
+
+      <Button
+        type="submit"
+        isLoading={isSubmitting}
+        loadingText="Cadastrando..."
+        className="w-full"
       >
-        {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
+        Cadastrar
+      </Button>
 
-      </button>
-      <p>Já possui uma conta?
+      <p>
+        Já possui uma conta?{' '}
         <Link href="/singin" className="font-bold text-blue-700 hover:underline">
           Faça login
         </Link>

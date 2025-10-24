@@ -108,7 +108,6 @@ async function main() {
   console.log(`✅ ${users.count} usuários criados`);
   console.log(`\n🔐 Credenciais:`);
   console.log(`   Admin: admin@gmail.com / SenhaAdmin123@`);
-  console.log(`   Users: *@untitledui.com / SenhaUser123@`);
 }
 
 main()
