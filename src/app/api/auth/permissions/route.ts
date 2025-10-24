@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractTokenFromHeader, verifyToken } from "@/services/jwt";
+import { extractTokenFromHeader, verifyToken } from "@/lib/jwt";
 import { getPermissionsForRole } from "@/lib/permissions";
 
 export async function GET(request: NextRequest) {

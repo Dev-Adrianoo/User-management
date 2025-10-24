@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { compare } from "bcryptjs"
-import { loginSchema } from "@/services/validations/auth"
-import { generateToken } from "@/services/jwt"
+import { loginSchema } from "@/lib/schemas/auth.schema"
+import { generateToken } from "@/lib/jwt"
 import { toPublicUser } from "@/lib/utils"
 import { ZodError } from "zod"
 import { prisma } from "@/lib/prisma";

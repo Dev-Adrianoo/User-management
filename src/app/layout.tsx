@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <Authprovider>
           {children}
-          <ToastProvider /> {/* Render ToastProvider here */}
+          <ToastProvider /> 
         </Authprovider>
       </body>
     </html>

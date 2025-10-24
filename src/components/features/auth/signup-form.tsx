@@ -1,41 +1,32 @@
 "use client";
 
 import Link from 'next/link';
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useCep } from '@/hooks/use-cep';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signupSchema, SignupData } from '@/services/validations/auth';
+import { signupSchema, SignupData } from '@/lib/schemas/auth.schema';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { isAxiosError } from 'axios';
 
 export default function SignupForm() {
-  const router = useRouter();
   const { fetchCep, isLoading: isCepLoading } = useCep();
 
+  const resolver = zodResolver(signupSchema) as unknown as Resolver<SignupData>;
+
   const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch, trigger, setError } = useForm<SignupData>({
-    resolver: zodResolver(signupSchema),
+    resolver,
     mode: 'onBlur',
   });
 
   const cepValue = watch('cep');
 
-  useEffect(() => {
-    if (cepValue && cepValue.replace(/\D/g, '').length === 8) {
-      handleCepSearch();
-    }
-  }, [cepValue]);
-
-  const handleCepSearch = async () => {
-    if (!cepValue) return;
-    const cleanCep = cepValue.replace(/\D/g, '');
-    if (!cleanCep || cleanCep.length !== 8) {
-      toast.error('CEP inválido');
-      return;
-    }
+  const handleCepSearch = useCallback(async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) return;
 
     const data = await fetchCep(cleanCep);
     if (data) {
@@ -44,7 +35,13 @@ export default function SignupForm() {
       toast.success("Endereço preenchido automaticamente!");
       trigger(['estado', 'cidade']);
     }
-  };
+  }, [fetchCep, setValue, trigger]);
+
+  useEffect(() => {
+    if (cepValue && cepValue.replace(/\D/g, '').length === 8) {
+      handleCepSearch(cepValue);
+    }
+  }, [cepValue]);
 
   const onSubmit = async (data: SignupData) => {
     try {
@@ -58,15 +55,21 @@ export default function SignupForm() {
         window.location.href = '/dashboard';
       }, 500);
 
-    } catch (error: any) {
-      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-        error.response.data.errors.forEach((err: { field: string; message: string }) => {
-          setError(err.field as keyof SignupData, { type: 'manual', message: err.message });
-        });
-        toast.error('Erro de validação. Verifique os campos.');
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const responseData = error.response.data;
+        if (responseData?.errors && Array.isArray(responseData.errors)) {
+          responseData.errors.forEach((err: { field: string; message: string }) => {
+            setError(err.field as keyof SignupData, { type: 'manual', message: err.message });
+          });
+          toast.error('Erro de validação. Verifique os campos.');
+        } else {
+          const message = responseData?.error || 'Erro ao cadastrar';
+          toast.error(message);
+        }
       } else {
-        const message = error.response?.data?.error || 'Erro ao cadastrar';
-        toast.error(message);
+        toast.error('Ocorreu um erro inesperado.');
+        console.error(error);
       }
     }
   };
@@ -186,7 +189,7 @@ export default function SignupForm() {
 
       <p>
         Já possui uma conta?{' '}
-        <Link href="/singin" className="font-bold text-blue-700 hover:underline">
+        <Link href="/signin" className="font-bold text-blue-700 hover:underline">
           Faça login
         </Link>
       </p>

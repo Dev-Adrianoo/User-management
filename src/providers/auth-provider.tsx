@@ -1,11 +1,12 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react"
+import { createContext, useState, ReactNode, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
 import { UserRole } from "@/types/user"
 import { Permission } from "@/lib/permissions"
+import { isAxiosError } from "axios"
 
 
 interface User {
@@ -60,7 +61,7 @@ export function Authprovider({ children }: { children: ReactNode }) {
       setUser(userResponse.data.user);
       setPermissions(permissionsResponse.data.data || []);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error refreshing user session:", error)
       localStorage.removeItem("token")
       setUser(null)
@@ -83,9 +84,13 @@ export function Authprovider({ children }: { children: ReactNode }) {
       toast.success("Login realizado com sucesso!");
 
       router.push("/dashboard")
-    }catch (error: any) {
-      const message = error.response?.data?.error || "Erro ao fazer login"
-      toast.error(message)
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const message = error.response.data?.error || "Erro ao fazer login"
+        toast.error(message)
+      } else {
+        toast.error("Ocorreu um erro inesperado.")
+      }
       throw error
     }
   }
@@ -97,10 +102,14 @@ export function Authprovider({ children }: { children: ReactNode }) {
       setUser(null)
       setPermissions([])
       toast.success("Logout realizado com sucesso!")
-      router.push("/singin")
-    } catch (error: any) {
-      const message = error.response?.data?.error || "Erro ao fazer logout"
-      toast.error(message)
+      router.push("/signin")
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const message = error.response.data?.error || "Erro ao fazer logout"
+        toast.error(message)
+      } else {
+        toast.error("Ocorreu um erro inesperado.")
+      }
       throw error
     }
   }

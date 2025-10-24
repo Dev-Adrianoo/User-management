@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { verifyToken, extractTokenFromHeader } from "@/services/jwt"
+import { verifyToken, extractTokenFromHeader } from "@/lib/jwt"
 import { toPublicUser } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 

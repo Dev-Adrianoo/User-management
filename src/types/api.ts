@@ -1,6 +1,6 @@
 // Resposta padrão da API ( SUCESSO )
 
-export interface ApiSuccessResponse<T = any> {
+export interface ApiSuccessResponse<T = unknown> {
   success: true
   message?: string
   data?: T
@@ -10,12 +10,12 @@ export interface ApiErrorResponse {
   success: false
   error: string
   message?: string
-  details?: any
+  details?: Record<string, unknown>
 }
 
 // Resposta generica da api
 
-export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse
+export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse
 
 
 export interface CepData {

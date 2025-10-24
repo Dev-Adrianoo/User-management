@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 import { hash } from "bcryptjs"
-import { generateToken } from "@/services/jwt"
+import { generateToken } from "@/lib/jwt"
 import { toPublicUser } from "@/lib/utils"
 import { z } from "zod"
 
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    console.log('BODY RECEBIDO:', body); 
+     
 
     const validatedData = backendSignupSchema.parse(body)
     
