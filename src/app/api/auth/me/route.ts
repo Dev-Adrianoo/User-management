@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { verifyToken, extractTokenFromHeader } from "@/services/jwt"
-import { toPublicUser } from "@/services/utils"
+import { toPublicUser } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
 
 
@@ -20,34 +20,34 @@ export async function GET(request: NextRequest) {
 
     const payload = await verifyToken(token)
 
-    if(!payload) {
+    if (!payload) {
       return NextResponse.json({
         success: false,
         message: "Token inválido ou expirado",
       },
-      { status: 401 }
+        { status: 401 }
       )
     }
 
     const user = await prisma.user.findUnique({
-      where: {id: payload.userId},
+      where: { id: payload.userId },
     })
 
-    if(!user) {
+    if (!user) {
       return NextResponse.json({
         success: false,
         message: "Usuário não encontrado",
       },
-        {status: 404}
+        { status: 404 }
       )
     }
     const publicUser = toPublicUser(user)
 
     return NextResponse.json({
       success: true,
-      user: publicUser
+      user: publicUser,
     },
-    { status: 200 }
+      { status: 200 }
     )
   } catch (error) {
     console.error("Error in /api/auth/me", error)
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       success: false,
       error: "Erro ao buscar dados do usuário",
     },
-    { status: 500 },
-  )
+      { status: 500 },
+    )
   }
 }

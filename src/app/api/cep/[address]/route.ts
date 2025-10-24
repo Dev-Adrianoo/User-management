@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest, context: { params: Promise<{ cep: string }> }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ address: string }> }) {
   const resolvedParams = await context.params;
-  const { cep } = resolvedParams;
-  console.log('CEP recebido na API:', cep);
+  const { address: cep } = resolvedParams;
 
   if (!cep || cep.length !== 8) {
     return NextResponse.json({ error: 'CEP inválido' }, { status: 400 });

@@ -3,7 +3,7 @@ import axios from "axios"
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "",
   headers: {
-    "Content-Type": "aplication/json",
+    "Content-Type": "application/json",
   },
 })
 
@@ -27,7 +27,6 @@ api.interceptors.response.use(
 
     if(error.response?.status === 401) {
       localStorage.removeItem("token")
-      window.location.href ="/login"
     }
     return Promise.reject(error)
   }

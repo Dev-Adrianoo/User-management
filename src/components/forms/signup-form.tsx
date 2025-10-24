@@ -14,7 +14,7 @@ export default function SignupForm() {
   const router = useRouter();
   const { fetchCep, isLoading: isCepLoading } = useCep();
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch, trigger } = useForm<SignupData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch, trigger, setError } = useForm<SignupData>({
     resolver: zodResolver(signupSchema),
     mode: 'onBlur',
   });
@@ -28,7 +28,7 @@ export default function SignupForm() {
   }, [cepValue]);
 
   const handleCepSearch = async () => {
-    if (!cepValue) return; 
+    if (!cepValue) return;
     const cleanCep = cepValue.replace(/\D/g, '');
     if (!cleanCep || cleanCep.length !== 8) {
       toast.error('CEP inválido');
@@ -40,32 +40,38 @@ export default function SignupForm() {
       setValue('estado', data.uf, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
       setValue('cidade', data.localidade, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
       toast.success("Endereço preenchido automaticamente!");
-      trigger(['estado', 'cidade']); 
+      trigger(['estado', 'cidade']);
     }
   };
 
   const onSubmit = async (data: SignupData) => {
     try {
-      const payload = {
-        nome: data.name,
-        email: data.email,
-        senha: data.password,
-        cep: data.cep || undefined,
-        estado: data.estado || undefined,
-        cidade: data.cidade || undefined,
-      };
+      const { confirmPassword, ...payload } = data;
+
+      console.log('PAYLOAD ENVIADO:', payload);
 
       const response = await api.post('/api/auth/register', payload);
 
+      localStorage.setItem('token', response.data.token);
+
       toast.success('Cadastro realizado com sucesso!');
 
-      localStorage.setItem('token', response.data.token);
-      router.push('/dashboard');
+      setTimeout(() => {
+        window.location.href = '/dashboard'; 
+      }, 500);
 
     } catch (error: any) {
-      const message = error.response?.data?.error || 'Erro ao cadastrar';
-      toast.error(message);
+      console.log('ERRO COMPLETO:', error.response?.data);
 
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        error.response.data.errors.forEach((err: { field: string; message: string }) => {
+          setError(err.field as keyof SignupData, { type: 'manual', message: err.message });
+        });
+        toast.error('Erro de validação. Verifique os campos.');
+      } else {
+        const message = error.response?.data?.error || 'Erro ao cadastrar';
+        toast.error(message);
+      }
     }
   };
 
@@ -151,7 +157,7 @@ export default function SignupForm() {
           maxLength={9}
           disabled={isSubmitting || isCepLoading}
         />
-        
+
         {errors.cep && <span className="text-xs text-red-500 mt-1">{errors.cep.message}</span>}
         {!errors.cep && (
           <span className='text-xs text-gray-600'>
@@ -203,11 +209,11 @@ export default function SignupForm() {
         {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
 
       </button>
-      <p>Já possui uma conta? 
-        <Link href="/login" className="font-bold text-blue-700 hover:underline">
-        Faça login
+      <p>Já possui uma conta?
+        <Link href="/singin" className="font-bold text-blue-700 hover:underline">
+          Faça login
         </Link>
-        </p>
+      </p>
     </form>
   );
 }

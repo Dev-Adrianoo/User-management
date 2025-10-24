@@ -1,17 +1,27 @@
 import { prisma } from "@/lib/prisma"
-import { NextRequest, NextResponse, userAgent } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { hash } from "bcryptjs"
-import { signupSchema } from "@/services/validations/auth"
 import { generateToken } from "@/services/jwt"
-import { toPublicUser } from "@/services/utils"
-import { ZodError } from "zod"
+import { toPublicUser } from "@/lib/utils"
+import { z } from "zod"
 
+const backendSignupSchema = z.object({
+  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  email: z.string().email("Email inválido"),
+  password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
+  cep: z.string().optional(),
+  estado: z.string().optional(),
+  cidade: z.string().optional(),
+})
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    
+    console.log('BODY RECEBIDO:', body); 
 
-    const validatedData = signupSchema.parse(body)
+    const validatedData = backendSignupSchema.parse(body)
+    
     const existingUser = await prisma.user.findUnique({ where: { email: validatedData.email } })
 
     if (existingUser) {
@@ -33,7 +43,7 @@ export async function POST(request: NextRequest) {
         senhaHash: hashedPassword,
         role: "USER",
         cep: validatedData.cep || null,
-        estado: validatedData.cidade || null,
+        estado: validatedData.estado || null,
         cidade: validatedData.cidade || null,
       },
     })
@@ -55,9 +65,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-
-    if (error instanceof ZodError) {
-
+    console.error("ERRO NO BACKEND:", error)
+    
+    if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
         error: "Validation Error",
@@ -66,10 +76,10 @@ export async function POST(request: NextRequest) {
           message: err.message,
         })),
       },
-      { status: 400 }
-    )
+        { status: 400 }
+      )
     }
-    console.error("Erro in register: ", error)
+    
     return NextResponse.json({
       success: false,
       error: "Erro ao cadastrar usuário",
@@ -77,4 +87,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}  
+}

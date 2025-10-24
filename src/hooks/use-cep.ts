@@ -9,7 +9,7 @@ interface CepData {
   logradouro: string
   bairro: string
   localidade: string
-  uf: string // Alterado de 'estado' para 'uf'
+  uf: string 
 }
 
 export function useCep() {
