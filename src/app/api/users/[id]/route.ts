@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { ZodError } from 'zod';
+import * as userService from "@/services/UserService"
+
+type Context = {
+  params: {
+    id: string;
+  }
+}
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {

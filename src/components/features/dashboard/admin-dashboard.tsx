@@ -135,7 +135,7 @@ export default function DashBoardAdmin() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Badge
-                          variant={user.role.name === "Admin" ? "default" : "secondary"}
+                          variant={user.role === "Admin" ? "default" : "secondary"}
                           className={
                             user.role.name === "Admin"
                               ? "bg-purple-100 text-purple-700 hover:bg-purple-100"

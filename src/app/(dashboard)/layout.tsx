@@ -12,7 +12,6 @@ export default function DashboardLayout({
 
       <main className="flex-1 flex flex-col overflow-auto">
         <DashboardHeader />
-        {/* O 'p-8' do V0 será aplicado pelo componente de conteúdo */}
         {children}
       </main>
     </div>
