@@ -16,6 +16,9 @@ export default function DashboardPage() {
     }
   }, [user, isLoading, router]);
 
+  console.log("[DashboardPage] Tentando renderizar. Usuário:", user);
+  console.log("[DashboardPage] Permissões:", permissions);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full p-8">
@@ -24,8 +27,8 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
-    return null; 
+  if (!isLoading && !user) {
+    return <div className='p-8'>Usuário não disponivel.</div> 
   }
 
   return (
@@ -33,7 +36,7 @@ export default function DashboardPage() {
       {permissions.includes('view_admin_dashboard') ? (
         <DashBoardAdmin />
       ) : permissions.includes('view_user_dashboard') ? (
-        <DashBoardUser /> 
+        <DashBoardUser user={user} /> 
       ) : (
         <div className="p-8">
           Você não tem permissão para visualizar este painel.

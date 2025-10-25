@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import * as userService from "@/services/UserService"
+import { url } from 'inspector';
 
 type Context = {
   params: {
@@ -54,9 +55,15 @@ export async function PUT(request: NextRequest, context: Context ) {
   }
 }
 
-export async function DELETE(request: NextRequest, context: Context) {
+export async function DELETE(request: NextRequest) {
   try {
-    const { id } = context.params;
+    const url = new URL(request.url);
+
+    const id = url.pathname.split('/').pop();
+
+    if(!id) {
+      return NextResponse.json({ error: "User ID not provided" }, { status:400 });
+    }
 
     await userService.deleteUser(id);
 

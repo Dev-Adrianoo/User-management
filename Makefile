@@ -62,7 +62,7 @@ first-run:
 	@echo "$(GREEN)═══════════════════════════════════════$(RESET)"
 	@echo "$(BLUE)Acesse: http://localhost:3000$(RESET)"
 	@echo "$(BLUE)Credenciais: admin@gmail.com$(RESET)"
-	@echo "$(BLUE)Senha: SenhaAdmin123@ww$(RESET)"
+	@echo "$(BLUE)Senha: SenhaAdmin123@$(RESET)"
 
 down: 
 	@echo "$(YELLOW)Parando containers...$(RESET)"

@@ -16,11 +16,9 @@ export interface User {
   updatedAt: Date;
 }
 
-
-
 // usuario publico ( não possue senha )
-// ( usado para retornar dados ao front )
 
+// ( usado para retornar dados ao front )
 
 export interface PublicUser {
   id: string

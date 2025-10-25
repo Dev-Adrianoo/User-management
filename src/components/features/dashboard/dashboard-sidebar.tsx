@@ -19,10 +19,10 @@ export function DashboardSidebar() {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-linear-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">U</span>
+            <span className="text-white font-bold text-sm"></span>
           </div>
           <div>
-            <h1 className="font-semibold text-gray-900">User Managment</h1>
+            <h1 className="font-semibold text-gray-900">Painel de Usuários</h1>
             <p className="text-xs text-gray-500">v1.0</p>
           </div>
         </div>
