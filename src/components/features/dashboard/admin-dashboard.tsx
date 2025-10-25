@@ -37,24 +37,9 @@ import { useAuth } from "@/hooks/use-auth"
 import { useUsers } from "@/hooks/use-users"
 import { PublicUser } from "@/types/user"
 import { toast } from "sonner"
+import { containerVariantsStagger, itemVariantsFadeInUp } from '@/lib/animation';
 
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }, 
-}
-
-const itemVariants: Variants = { 
-  hidden: { opacity: 0, y: 20 }, 
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { 
-      duration: 0.5, 
-      ease: "easeOut" 
-    } 
-  },
-}
 
 
 export default function DashBoardAdmin() {
@@ -120,18 +105,18 @@ export default function DashBoardAdmin() {
 
   return (
     <motion.div className="p-8"
-    variants={containerVariants}
+    variants={containerVariantsStagger}
     initial="hidden"
     animate="visible">
 
       { /* Card de stats */}
       <motion.div 
-      variants={containerVariants}
+      variants={containerVariantsStagger}
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {stats.map((stat) => (
           <motion.div
             key={stat.label}
-            variants={itemVariants}
+            variants={itemVariantsFadeInUp}
             whileHover={{scale: 1.02}}
             className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
           >

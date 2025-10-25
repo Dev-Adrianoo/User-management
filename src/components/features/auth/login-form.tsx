@@ -8,6 +8,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { loginSchema, LoginInput } from '@/lib/schemas/auth.schema';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { LockKeyhole, LogIn, Mail } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { containerVariantsStagger, itemVariantsFadeInUp } from '@/lib/animation';
+
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -26,10 +30,18 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-120 h-112 rounded-lg">
-      <h1 className='text-3xl font-semibold'>Bem-vindo de volta</h1>
-      <p className='font-light'>Acesse sua conta para continuar.</p>
+    <motion.form
+      variants={containerVariantsStagger}
+      initial="hidden"
+      animate="visible"
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-120 h-112 rounded-lg">
+      <motion.h1 variants={itemVariantsFadeInUp} className='text-3xl font-semibold'>Bem-vindo de volta</motion.h1>
+      <motion.p variants={itemVariantsFadeInUp} className='font-light'>Acesse sua conta para continuar.</motion.p>
+
+      <motion.div variants={itemVariantsFadeInUp}>
       <Input
+        icon={<Mail className='h-5 w-5 text-gray-400' />}
         id="email"
         label="Email"
         type="email"
@@ -39,8 +51,11 @@ export default function LoginForm() {
         disabled={isSubmitting}
         {...register('email')}
       />
+      </motion.div>
 
+      <motion.div variants={itemVariantsFadeInUp}>
       <Input
+        icon={<LockKeyhole className='h-5 w-5 text-gray-400' />}
         id="password"
         label="Senha"
         type="password"
@@ -50,22 +65,26 @@ export default function LoginForm() {
         disabled={isSubmitting}
         {...register('password')}
       />
+      </motion.div>
 
+      <motion.div variants={itemVariantsFadeInUp}>
       <Button
         type="submit"
         isLoading={isSubmitting}
         loadingText="Entrando..."
         className="w-full"
       >
+        <LogIn className="mr-2 h-5 w-5" />
         Entrar
       </Button>
-
-      <p className='text-center'>
+      </motion.div>
+    
+      <motion.p variants={itemVariantsFadeInUp} className='text-center'>
         Ainda não possui uma conta?{' '}
         <Link href="/signup" className="font-bold text-blue-700 hover:underline">
           Cadastre-se já
         </Link>
-      </p>
-    </form>
+      </motion.p>
+    </motion.form>
   );
 }

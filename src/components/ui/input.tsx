@@ -5,7 +5,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string | React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: string | React.ReactNode;
   required?: boolean;
 }
 
