@@ -1,24 +1,74 @@
 # Sistema de Gerenciamento de Usuários
 
-Este é um sistema de gerenciamento de usuários construído com Next.js, Prisma e Docker. Ele fornece uma base para aplicações que requerem autenticação de usuários e controle de acesso baseado em funções.
+Este é um sistema de gerenciamento de usuários construído com Next.js, Prisma e Docker. Ele fornece uma base para aplicações que requerem autenticação de usuários e controle de acesso baseado em funções (RBAC).
 
 ## Tecnologias Utilizadas
 
-*   **Next.js 16:** Framework React para construir aplicações web full-stack com Turbopack.
-*   **Prisma 6:** ORM moderno para Node.js e TypeScript.
-*   **Docker:** Plataforma para desenvolver, enviar e executar aplicações em contêineres.
-*   **TypeScript 5:** Superset tipado de JavaScript que compila para JavaScript puro.
-*   **Zod:** Biblioteca de declaração e validação de tipos.
-*   **Sonner:** Biblioteca de notificações (toasts) para React.
-*   **SQLite:** Motor de banco de dados SQL para desenvolvimento.
-*   **bcrypt:** Biblioteca para hash de senhas.
+*   **Framework Principal:** **Next.js (App Router)** - Para renderização de componentes de servidor e cliente, e roteamento.
+*   **Linguagem:** **TypeScript** - Para tipagem estática e segurança no código.
+*   **Estilização:**
+    *   **Tailwind CSS:** Framework CSS utilitário para estilização rápida e customizável.
+    *   **shadcn/ui:** Coleção de componentes de UI reutilizáveis e acessíveis.
+    *   **Framer Motion:** Biblioteca para animações fluidas e declarativas.
+*   **Gerenciamento de Estado e Dados:**
+    *   **React Context API (`AuthProvider`/`useAuth`):** Para gerenciamento do estado global de autenticação.
+    *   **SWR:** Para data fetching e cache de dados no frontend (hooks `useUsers`, `useCep`).
+*   **Formulários:**
+    *   **React Hook Form:** Para construção de formulários performáticos e flexíveis.
+    *   **Zod:** Para validação de schemas de dados tanto no frontend quanto no backend.
+*   **Backend e Banco de Dados:**
+    *   **Prisma:** ORM para interação com o banco de dados.
+    *   **SQLite:** Banco de dados para o ambiente de desenvolvimento.
+*   **Autenticação e Segurança:**
+    *   **JWT (jsonwebtoken):** Para criação e validação de tokens de autenticação.
+    *   **bcryptjs:** Para hashing seguro de senhas.
+    *   **Utilitário `toPublicUser`:** Garante que dados sensíveis do usuário (como a senha) nunca sejam expostos nas respostas da API.
 
-## Principais Atualizações
+## Arquitetura do Projeto
 
-*   **Arquitetura em Camadas e Módulos:** O projeto foi reestruturado para seguir um padrão claro de arquitetura, separando responsabilidades e facilitando a manutenção.
-*   **Validação com Zod:** A validação de dados de entrada, tanto no frontend quanto no backend, agora é feita com Zod, garantindo mais segurança e consistência nos tipos.
-*   **Feedback com Toasts:** A biblioteca Sonner foi integrada para fornecer feedback visual imediato (sucesso, erro, aviso) ao usuário após as operações.
-*   **Modularização por Domínio:** O código foi organizado em módulos de domínio como `auth` e `users`, agrupando arquivos relacionados (hooks, providers, validações, etc.).
+O projeto adota uma arquitetura moderna e modular, focada em separação de responsabilidades e escalabilidade.
+
+### Backend (API Routes)
+
+O backend segue o padrão **Controlador-Serviço** para organizar a lógica de negócio de forma clara e desacoplada.
+
+*   **Controladores (`route.ts`):**
+    *   **Responsabilidade:** Lidar exclusivamente com o ciclo de vida HTTP (Request e Response).
+    *   **Função:** Receber requisições, validar parâmetros de rota, chamar o serviço correspondente para executar a lógica de negócio e retornar a resposta HTTP adequada. São mantidos "magros" (thin).
+    *   **Localização:** `src/app/api/**/route.ts`
+
+*   **Serviços (`*.service.ts`):**
+    *   **Responsabilidade:** Conter toda a lógica de negócio da aplicação.
+    *   **Função:** Interagir com o banco de dados (via Prisma), integrar com APIs externas (como ViaCEP), validar dados (com Zod), e executar regras de negócio. São mantidos "gordos" (fat).
+    *   **Serviços Implementados:**
+        *   `authService`: Lida com registro, login e validação de sessão.
+        *   `userService`: Gerencia as operações de CRUD para usuários.
+        *   `cepService`: Busca informações de endereço a partir de um CEP em uma API externa.
+    *   **Localização:** `src/services/*.ts`
+
+### Frontend
+
+*   **Estrutura de Roteamento:**
+    *   **App Router:** Utiliza o roteador do Next.js para criar rotas baseadas no sistema de arquivos.
+    *   **Route Groups:** Os diretórios `(auth)` e `(dashboard)` agrupam rotas que compartilham layouts ou lógicas específicas, sem afetar a URL final.
+*   **Organização de Componentes:**
+    *   `src/components/ui/`: Componentes de UI genéricos e reutilizáveis (Button, Input, etc.), muitos deles vindos do `shadcn/ui`.
+    *   `src/components/features/`: Componentes mais complexos que implementam funcionalidades específicas (ex: `login-form.tsx`, `admin-dashboard.tsx`).
+*   **Gerenciamento de Estado:**
+    *   O `AuthProvider` (via React Context) provê o estado de autenticação (usuário, token, permissões) para toda a aplicação.
+*   **Hooks Customizados:**
+    *   `useAuth`: Hook para acessar o contexto de autenticação e interagir com o `authService`.
+    *   `useUsers`: Hook para buscar e gerenciar dados de usuários, utilizando SWR.
+    *   `useCep`: Hook para buscar dados de CEP, utilizando SWR.
+*   **Controle de Acesso (RBAC):**
+    *   O controle de acesso no frontend é implementado de forma declarativa. O hook `useAuth` expõe um array de `permissions` do usuário logado.
+    *   Componentes, páginas e elementos de UI são renderizados condicionalmente verificando se a permissão necessária está presente: `permissions.includes(...)`.
+    *   As permissões disponíveis estão centralizadas em `src/lib/permissions.ts`.
+
+### Animações
+
+*   **Framer Motion:** Utilizado para adicionar animações de entrada e transições suaves em elementos da UI, como nos formulários de login/cadastro e nos dashboards.
+*   **Variantes Centralizadas:** Para garantir consistência e reuso, as variantes de animação (ex: `fadeIn`, `slideIn`) estão definidas em `src/lib/animation.ts` e podem ser importadas em qualquer componente.
 
 ## Pré-requisitos
 
@@ -87,27 +137,6 @@ Este projeto requer a configuração de variáveis de ambiente para funcionar co
             openssl rand -hex 32
             ```
             Copie o resultado e cole no seu arquivo `.env`.
-
-## Arquitetura do Projeto
-
-O projeto adota uma arquitetura híbrida, combinando **Camadas (Layers)** com **Modularização por Domínio**.
-
-### Camadas Principais
-
-| Camada          | Responsabilidade                                                                      | Exemplos de Diretórios/Arquivos                               |
-| :-------------- | :------------------------------------------------------------------------------------ | :------------------------------------------------------------ |
-| **Presentation**  | Interface do usuário, componentes React, páginas, formulários e estilos.              | `src/app/*`, `src/components/*`                               |
-| **Application**   | Lógica de negócio da aplicação, hooks, providers e validações (casos de uso).         | `src/hooks/*`, `src/providers/*`, `src/services/validations/*` |
-| **Infrastructure**| Integrações com sistemas externos, bibliotecas e implementações de baixo nível.       | `src/lib/api.ts` (Axios), `services/jwt.ts`, API do ViaCEP      |
-| **Data**          | Definição, migração e acesso aos dados.                                               | `prisma/schema.prisma`, `prisma/seed.ts`, `src/lib/prisma.ts` |
-
-### Modularização por Domínio
-
-Funcionalidades são agrupadas por domínio para aumentar a coesão e facilitar a localização de código relacionado.
-
-*   `auth/`: Contém tudo relacionado à autenticação (rotas de API, hooks, providers, validações).
-*   `users/`: Agrupa funcionalidades de gerenciamento de usuários (tipos, futuras rotas CRUD).
-*   `shared/core/`: Reúne código compartilhado entre múltiplos domínios, como tipos genéricos, utilitários e providers globais (ex: `ToastProvider`).
 
 ## Comandos Make Disponíveis
 

@@ -10,8 +10,23 @@ interface DashBoardUserProps {
   user: PublicUser | null;
 }
 
+const now = new Date();
+const formattedDateTime = now.toLocaleString('pt-BR', { 
+  day: '2-digit', 
+  month: '2-digit', 
+  year: 'numeric', 
+  hour: '2-digit', 
+  minute: '2-digit' 
+});
+
 const activityCards = [
-  { title: "Atividades recentes", description: "Última atividade há 2 dias", icon: Clock, color: "text-blue-600", bgColor: "bg-blue-50" },
+  { 
+    title: "Atividades recentes", 
+    description: `Último acesso: ${formattedDateTime}`, 
+    icon: Clock, 
+    color: "text-blue-600", 
+    bgColor: "bg-blue-50" 
+  },
   { title: "Mensagens", description: "Nenhuma nova mensagem", icon: Mail, color: "text-purple-600", bgColor: "bg-purple-50" },
   { title: "Status da conta", description: "Ativa", icon: CheckCircle2, color: "text-green-600", bgColor: "bg-green-50", badge: true },
 ]
