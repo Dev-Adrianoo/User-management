@@ -33,7 +33,7 @@ export default function DashboardPage() {
       {permissions.includes('view_admin_dashboard') ? (
         <DashBoardAdmin />
       ) : permissions.includes('view_user_dashboard') ? (
-        <DashBoardUser user={user} /> 
+        <DashBoardUser /> 
       ) : (
         <div className="p-8">
           Você não tem permissão para visualizar este painel.

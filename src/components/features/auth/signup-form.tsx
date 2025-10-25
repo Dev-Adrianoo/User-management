@@ -45,9 +45,8 @@ export default function SignupForm() {
 
   const onSubmit = async (data: SignupData) => {
     try {
-      const { confirmPassword, ...payload } = data;
 
-      const response = await api.post('/api/auth/register', payload);
+      const response = await api.post('/api/auth/register', data);
       localStorage.setItem('token', response.data.token);
       toast.success('Cadastro realizado com sucesso!');
 
@@ -75,7 +74,9 @@ export default function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-full">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-120 rounded-lg">
+      <h1 className='text-3xl font-semibold'>Crie sua conta</h1>
+      <p className='font-light'>Preencha os dados abaixo para começar.</p>
       <Input
         id="name"
         label="Nome"
@@ -91,7 +92,7 @@ export default function SignupForm() {
         id="email"
         label="Email"
         type="email"
-        placeholder="nome@email.com"
+        placeholder="seu@email.com"
         required
         error={errors.email?.message}
         disabled={isSubmitting}
@@ -187,7 +188,7 @@ export default function SignupForm() {
         Cadastrar
       </Button>
 
-      <p>
+      <p className='text-center'>
         Já possui uma conta?{' '}
         <Link href="/signin" className="font-bold text-blue-700 hover:underline">
           Faça login

@@ -1,82 +1,47 @@
 import { NextRequest, NextResponse } from "next/server"
-import { compare } from "bcryptjs"
-import { loginSchema } from "@/lib/schemas/auth.schema"
-import { generateToken } from "@/lib/jwt"
-import { toPublicUser } from "@/lib/utils"
-import { ZodError } from "zod"
-import { prisma } from "@/lib/prisma";
-
+import { success, ZodError } from "zod"
+import * as authService from "@/services/authService"
 
 
 export async function POST(request: NextRequest) {
-  try {
 
+  try {
     const body = await request.json();
 
-    const validatedData = loginSchema.parse(body)
-
-    const user = await prisma.user.findUnique({
-      where: { email: validatedData.email },
-    })
-
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Email ou senha inválidos",
-        },
-        { status: 401 }
-      )
-    }
-
-    const isPasswordValid = await compare(validatedData.password, user.senhaHash)
-
-    if (!isPasswordValid) {
-      return NextResponse.json({
-        success: false,
-        error: "Email ou senha inválidos."
-      },
-        { status: 401 }
-      )
-    }
-
-    const token = await generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    })
-
-    const publicUser = toPublicUser(user)
+    const { user, token } = await authService.loginUser(body)
 
     return NextResponse.json({
       success: true,
-      message: "Login relizado com sucesso",
-      user: publicUser,
-      token,
+      message: "Login Relizado com sucesso!",
+      user: user,
+      token: token,
     },
-
       { status: 200 }
     )
-
   } catch (error) {
 
     if (error instanceof ZodError) {
       return NextResponse.json({
         success: false,
         error: "Validation Error",
-        errors: error.issues.map((err) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
+        errors: error.flatten().fieldErrors,
       },
-        { status: 400 }
+        { status: 400}
       )
     }
-    console.error("Error ao fazer login", error)
+    if (error instanceof Error && error.message == "Email ou senha inválidos") {
+      return NextResponse.json({
+        success: false,
+        error: "Email senha inválidos",
+      },
+        { status: 401 }
+      )
+    }
 
+    console.error("Erro ao fazer login", error)
     return NextResponse.json({
       success: false,
-      error: "Erro ao fazer login",
+      error: "Error ao fazer login",
     },
       { status: 500 }
     )

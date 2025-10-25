@@ -26,12 +26,14 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-full">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-4 shadow-2xl p-5 w-120 h-112 rounded-lg">
+      <h1 className='text-3xl font-semibold'>Bem-vindo de volta</h1>
+      <p className='font-light'>Acesse sua conta para continuar.</p>
       <Input
         id="email"
         label="Email"
         type="email"
-        placeholder="nome@email.com"
+        placeholder="seu@email.com"
         required
         error={errors.email?.message}
         disabled={isSubmitting}
@@ -58,7 +60,7 @@ export default function LoginForm() {
         Entrar
       </Button>
 
-      <p>
+      <p className='text-center'>
         Ainda não possui uma conta?{' '}
         <Link href="/signup" className="font-bold text-blue-700 hover:underline">
           Cadastre-se já

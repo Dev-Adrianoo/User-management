@@ -18,12 +18,12 @@ export function DashboardSidebar() {
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-linear-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">U</span>
           </div>
           <div>
-            <h1 className="font-semibold text-gray-900">Untitled UI</h1>
-            <p className="text-xs text-gray-500">v4.0</p>
+            <h1 className="font-semibold text-gray-900">User Managment</h1>
+            <p className="text-xs text-gray-500">v1.0</p>
           </div>
         </div>
       </div>
@@ -51,7 +51,6 @@ export function DashboardSidebar() {
         </div>
       </nav>
 
-     
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={logout} 

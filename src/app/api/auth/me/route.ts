@@ -1,62 +1,41 @@
-import { prisma } from "@/lib/prisma";
-import { verifyToken, extractTokenFromHeader } from "@/lib/jwt"
-import { toPublicUser } from "@/lib/utils"
 import { NextRequest, NextResponse } from "next/server"
+import * as authService from "@/services/authService"
+import { success } from "zod";
 
 
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get("Authorization");
-    const token = extractTokenFromHeader(authHeader)
 
-    if (!token) {
-      return NextResponse.json({
-        success: false,
-        error: "Token não fornecido!",
-      },
-        { status: 401 }
-      )
-    }
-
-    const payload = await verifyToken(token)
-
-    if (!payload) {
-      return NextResponse.json({
-        success: false,
-        message: "Token inválido ou expirado",
-      },
-        { status: 401 }
-      )
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-    })
-
-    if (!user) {
-      return NextResponse.json({
-        success: false,
-        message: "Usuário não encontrado",
-      },
-        { status: 404 }
-      )
-    }
-    const publicUser = toPublicUser(user)
+    const user = await authService.validateUserToken(authHeader)
 
     return NextResponse.json({
       success: true,
-      user: publicUser,
+      user,
     },
       { status: 200 }
     )
-  } catch (error) {
-    console.error("Error in /api/auth/me", error)
 
+  } catch (error) {
+
+    if (error instanceof Error) {
+      if (
+        error.message === "Token não fornecido" ||
+        error.message == "Token inválido ou expirado!"
+      ) {
+        return NextResponse.json(
+          { success: false, message: error.message },
+          { status: 401 }
+        )
+      }
+    }
+
+    console.error("Error in /api/auth/me", error)
     return NextResponse.json({
       success: false,
       error: "Erro ao buscar dados do usuário",
     },
-      { status: 500 },
+      { status: 500 }
     )
   }
 }
