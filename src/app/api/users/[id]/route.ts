@@ -11,47 +11,58 @@ type Context = {
   }
 }
 
-export async function GET(request: NextRequest, context: Context) {
+export async function GET(request: NextRequest) {
   try {
-    const { id } = context.params;
+
+    const url = new URL(request.url);
+    const id = url.pathname.split('/').pop();
+    if (!id) {
+      return NextResponse.json({ error: 'User ID not provided' }, { status: 400 });
+    }
+
     const user = await userService.getUserById(id);
 
-
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    return NextResponse.json(user)
+    return NextResponse.json(user);
+
 
   } catch (error) {
     console.error("Failed to fetch user: ", error);
-    return NextResponse.json({ error: 'Failed to fetch user '}, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch user ' }, { status: 500 })
   }
 }
 
 
-export async function PUT(request: NextRequest, context: Context ) {
+export async function PUT(request: NextRequest) {
   try {
-    const { id } = context.params;
-    const body = await request.json();
 
-    const updatedUser = await userService.updateUser(id, body)
+    const url = new URL(request.url);
+    const id = url.pathname.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json({ error: 'User ID not provided' }, { status: 400 });
+    }
+    const body = await request.json();
+    const updatedUser = await userService.updateUser(id, body);
     return NextResponse.json(updatedUser);
 
   } catch (error) {
-    
+
     if (error instanceof ZodError) {
       return NextResponse.json(
-        {error: 'Invalid input', details: error.flatten().fieldErrors},
+        { error: 'Invalid input', details: error.flatten().fieldErrors },
         { status: 400 }
       );
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if(error.code === "P2025") {
-          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      if (error.code === "P2025") {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
     }
-    return NextResponse.json({ error: 'Failed to update user'}, {status: 500})
+    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 })
   }
 }
 
@@ -61,8 +72,8 @@ export async function DELETE(request: NextRequest) {
 
     const id = url.pathname.split('/').pop();
 
-    if(!id) {
-      return NextResponse.json({ error: "User ID not provided" }, { status:400 });
+    if (!id) {
+      return NextResponse.json({ error: "User ID not provided" }, { status: 400 });
     }
 
     await userService.deleteUser(id);
@@ -74,9 +85,9 @@ export async function DELETE(request: NextRequest) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
 
       if (error.code === 'P2025') {
-        
+
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        
+
       }
     }
     return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });

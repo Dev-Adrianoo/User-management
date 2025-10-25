@@ -9,7 +9,6 @@ import * as userService from "@/services/UserService"
 
 export const registerUser = async (body: unknown) => {
   
-  // já vem com validação, pois o userService valida e criptografa
   const user = await userService.createUser(body)
 
   const token = await generateToken({
@@ -66,6 +65,6 @@ export const validateUserToken = async (authHeader: string | null) => {
   if(!user) {
     throw new Error("Usuário não encontrado!")
   }
-  
+
   return user
 }

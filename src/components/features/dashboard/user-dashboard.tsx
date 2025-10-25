@@ -74,7 +74,6 @@ export default function DashBoardUser({ user }: DashBoardUserProps) {
           <p className="text-gray-600 mb-6">É ótimo ter você aqui novamente.</p>
 
           <div className="space-y-4">
-            {/* Nome */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
                 <UserIcon className="w-5 h-5 text-indigo-600" />
@@ -100,7 +99,7 @@ export default function DashBoardUser({ user }: DashBoardUserProps) {
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Role</p>
+                <p className="text-sm font-medium text-gray-500">Função</p>
                 <Badge className={
                   user.role === 'ADMIN' 
                   ? "bg-purple-100 text-purple-700 hover:bg-purple-100 font-semibold" 

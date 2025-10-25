@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { motion, Variants } from "framer-motion"
 import {
   Users,
@@ -11,6 +11,8 @@ import {
   MoreVertical,
   Edit,
   Trash2,
+  Mail,
+  UserRound,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,6 +40,20 @@ import { useUsers } from "@/hooks/use-users"
 import { PublicUser } from "@/types/user"
 import { toast } from "sonner"
 import { containerVariantsStagger, itemVariantsFadeInUp } from '@/lib/animation';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { UpdateUserInput, updateUserSchema } from "@/lib/validations/user"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { isAxiosError } from "axios"
 
 
 
@@ -52,12 +68,42 @@ export default function DashBoardAdmin() {
     isLoading,
     error,
     deleteUser,
+    updateUser,
   } = useUsers()
 
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<PublicUser | null>(null);
 
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<PublicUser | null>(null);
+
+
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    formState: { errors: editErrors, isSubmitting: isEditSubmitting },
+    reset: resetEditForm,
+    setError: setEditErro,
+  } = useForm<UpdateUserInput>({
+    resolver: zodResolver(updateUserSchema),
+    mode: 'onBlur',
+  });
+
+
+  useEffect(() => {
+    if (userToEdit) {
+      resetEditForm({
+        name: userToEdit.nome,
+        email: userToEdit.email,
+      });
+    } else {
+      resetEditForm({
+        name: '',
+        email: '',
+      });
+    }
+  }, [userToEdit, resetEditForm, isEditDialogOpen]);
 
   const totalUsers = usersData.length;
 
@@ -103,21 +149,44 @@ export default function DashBoardAdmin() {
     }
   }
 
+
+  const handleEditSubmit = async (data: UpdateUserInput) => {
+    if (!userToEdit) return;
+
+    try {
+
+      await updateUser(userToEdit.id, data);
+      toast.success(`Usuário "${data.name}" atualizado com sucesso!`);
+      setIsEditDialogOpen(false);
+      setUserToEdit(null);
+
+    } catch (err) {
+      console.error("Erro ao atualizar usuário:", err);
+      if (isAxiosError(err) && err.response?.data?.error) {
+        toast.error(`Erro: ${err.response.data.error}`);
+
+      } else {
+        toast.error("Erro ao atualizar usuário. Tente novamente.");
+
+      }
+    }
+  };
+
   return (
     <motion.div className="p-8"
-    variants={containerVariantsStagger}
-    initial="hidden"
-    animate="visible">
+      variants={containerVariantsStagger}
+      initial="hidden"
+      animate="visible">
 
       { /* Card de stats */}
-      <motion.div 
-      variants={containerVariantsStagger}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <motion.div
+        variants={containerVariantsStagger}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {stats.map((stat) => (
           <motion.div
             key={stat.label}
             variants={itemVariantsFadeInUp}
-            whileHover={{scale: 1.02}}
+            whileHover={{ scale: 1.02 }}
             className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center justify-between">
@@ -177,10 +246,10 @@ export default function DashBoardAdmin() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Função</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -213,11 +282,19 @@ export default function DashBoardAdmin() {
                       <td className="px-6 py-4 whitespace-nowrap">
 
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center justify-center  gap-2">
 
                           {permissions.includes("manage_users") && (
-                            <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                              onClick={() => {
+                                setUserToEdit(user)
+                                setIsEditDialogOpen(true)
+                              }}
+                              >
                               <Edit className="w-4 h-4 mr-1" />
                               Edit
                             </Button>
@@ -225,11 +302,8 @@ export default function DashBoardAdmin() {
                           {permissions.includes("manage_users") && (
                             <Button
                               onClick={() => {
-                                console.log("Botão Delete clicado para:", user.nome);
                                 setUserToDelete(user);
-                                console.log("userToDelete definido como:", user);
                                 setIsDeleteDialogOpen(true);
-                                console.log("isDeleteDialogOpen definido como: true");
                               }}
                               variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
@@ -264,6 +338,56 @@ export default function DashBoardAdmin() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Editar Usuário</DialogTitle>
+                  <DialogDescription>
+                    Modifique os dados de {userToEdit?.nome || 'usuário'}. Clique em salvar quando terminar.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <form
+                  id="edit-user-form"
+                  onSubmit={handleSubmitEdit(handleEditSubmit)}
+                  className="grid gap-4 py-4"
+                >
+                  <Input
+                    id="edit-nome"
+                    label="Nome"
+                    icon={<UserRound className='h-5 w-5 text-gray-400' />}
+                    disabled={isEditSubmitting}
+                    error={editErrors.name?.message}
+                    {...registerEdit("name")}
+                  />
+                  <Input
+                    id="edit-email"
+                    label="Email"
+                    type="email"
+                    icon={<Mail className='h-5 w-5 text-gray-400' />}
+                    disabled={isEditSubmitting}
+                    error={editErrors.email?.message}
+                    {...registerEdit("email")}
+                  />
+                </form>
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline" disabled={isEditSubmitting}>Cancelar</Button>
+                  </DialogClose>
+
+                  <Button
+                    type="submit"
+                    form="edit-user-form"
+                    isLoading={isEditSubmitting}
+                    loadingText="Salvando..."
+                  >
+                    Salvar Alterações
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
 
             {filteredUsers.length === 0 && (
