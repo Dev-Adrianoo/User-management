@@ -26,7 +26,6 @@ export default function Sidebar() {
             </li>
           ))}
         </ul>
-        {/* Can add a footer/logout button here */}
       </nav>
     </aside>
   );

@@ -6,8 +6,6 @@ type ViaCepResponse = {
 }
 
 export const getAdressByCep = async (cep: string) => {
-
-
   if(!cep || cep.length !== 8) {
     throw new Error('CEP inválido');
   }
