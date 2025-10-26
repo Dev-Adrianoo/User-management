@@ -37,7 +37,7 @@ export const signupSchema = z
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.preprocess(
-      (val) => val === undefined ? "" : val,
+      (val) => String(val ?? ''),
       z.string().trim().min(1, "Confirmação de senha é obrigatória")
     ),
     cep: cepSchema,

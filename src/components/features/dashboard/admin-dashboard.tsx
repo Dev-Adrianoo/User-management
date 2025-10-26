@@ -4,11 +4,7 @@ import { use, useEffect, useState } from "react"
 import { motion, Variants } from "framer-motion"
 import {
   Users,
-  UserCheck,
-  UserPlus,
-  Shield,
   Search,
-  MoreVertical,
   Edit,
   Trash2,
   Mail,
@@ -19,12 +15,6 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -33,7 +23,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useAuth } from "@/hooks/use-auth"
 import { useUsers } from "@/hooks/use-users"
@@ -47,20 +36,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog"
-import { UpdateUserInput, updateUserSchema } from "@/lib/validations/user"
+import { UpdateUserInput, updateUserSchema } from "@/lib/schemas/user.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { isAxiosError } from "axios"
-
-
+import { AddUserModal } from "./add-user-modal"
 
 
 export default function DashBoardAdmin() {
   const [searchQuery, setSearchQuery] = useState("")
-  const { permissions } = useAuth()
+  const { permissions, user: loggedInUser } = useAuth()
 
 
   const {
@@ -78,13 +65,11 @@ export default function DashBoardAdmin() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<PublicUser | null>(null);
 
-
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
     formState: { errors: editErrors, isSubmitting: isEditSubmitting },
     reset: resetEditForm,
-    setError: setEditErro,
   } = useForm<UpdateUserInput>({
     resolver: zodResolver(updateUserSchema),
     mode: 'onBlur',
@@ -140,34 +125,29 @@ export default function DashBoardAdmin() {
 
     try {
       await deleteUser(userToDelete.id);
-      toast.success(`Usuário "${userToDelete.nome}" delete com sucesso!`)
+      toast.success(`Usuário "${userToDelete.nome}" deletado com sucesso!`)
     } catch (err) {
-      console.error("Erro ao deleter usuário. Tente novamente.");
+      toast.error("Erro ao deletar usuário. Tente novamente.");
     } finally {
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
     }
   }
 
-
   const handleEditSubmit = async (data: UpdateUserInput) => {
     if (!userToEdit) return;
 
     try {
-
       await updateUser(userToEdit.id, data);
       toast.success(`Usuário "${data.name}" atualizado com sucesso!`);
       setIsEditDialogOpen(false);
       setUserToEdit(null);
-
     } catch (err) {
       console.error("Erro ao atualizar usuário:", err);
       if (isAxiosError(err) && err.response?.data?.error) {
         toast.error(`Erro: ${err.response.data.error}`);
-
       } else {
         toast.error("Erro ao atualizar usuário. Tente novamente.");
-
       }
     }
   };
@@ -220,12 +200,7 @@ export default function DashBoardAdmin() {
               />
             </div>
 
-            {permissions.includes("manage_users") && (
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Adicionar usuário
-              </Button>
-            )}
+            {permissions.includes("manage_users") && <AddUserModal />}
 
           </div>
         </div>
@@ -253,67 +228,73 @@ export default function DashBoardAdmin() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredUsers.map((user: PublicUser) => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="w-10 h-10">
-                            <AvatarImage src={"/placeholder.svg"} />
-                            <AvatarFallback>
-                              {user.nome.split(" ").map((n) => n[0]).join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="font-medium text-gray-900">{user.nome}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge
-                          variant={user.role === "ADMIN" ? "default" : "secondary"}
-                          className={
-                            user.role === "ADMIN"
-                              ? "bg-purple-100 text-purple-700 hover:bg-purple-100"
-                              : "bg-green-100 text-green-700 hover:bg-green-100"
-                          }
-                        >
-                          {user.role}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                  {filteredUsers.map((user: PublicUser) => {
+                    const isSelf = loggedInUser?.id === user.id
 
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center justify-center  gap-2">
+                    return (
+                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-10 h-10">
+                              <AvatarImage src={"/placeholder.svg"} />
+                              <AvatarFallback>
+                                {user.nome.split(" ").map((n) => n[0]).join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium text-gray-900">{user.nome}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge
+                            variant={user.role === "ADMIN" ? "default" : "secondary"}
+                            className={
+                              user.role === "ADMIN"
+                                ? "bg-purple-100 text-purple-700 hover:bg-purple-100"
+                                : "bg-green-100 text-green-700 hover:bg-green-100"
+                            }
+                          >
+                            {user.role}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
 
-                          {permissions.includes("manage_users") && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                              onClick={() => {
-                                setUserToEdit(user)
-                                setIsEditDialogOpen(true)
-                              }}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center justify-center  gap-2">
+
+                            {permissions.includes("manage_users") && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => {
+                                  setUserToEdit(user)
+                                  setIsEditDialogOpen(true)
+                                }}
+                                disabled={isSelf}
                               >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Edit
-                            </Button>
-                          )}
-                          {permissions.includes("manage_users") && (
-                            <Button
-                              onClick={() => {
-                                setUserToDelete(user);
-                                setIsDeleteDialogOpen(true);
-                              }}
-                              variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4 mr-1" /> Delete
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                                <Edit className="w-4 h-4 mr-1" />
+                                Edit
+                              </Button>
+                            )}
+                            {permissions.includes("manage_users") && (
+                              <Button
+                                onClick={() => {
+                                  setUserToDelete(user);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                                disabled={isSelf}
+                                variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" /> Delete
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -388,7 +369,6 @@ export default function DashBoardAdmin() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-
 
             {filteredUsers.length === 0 && (
               <div className="text-center py-12">

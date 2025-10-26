@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import * as userService from "@/services/UserService"
-import { url } from 'inspector';
 
 type Context = {
   params: {

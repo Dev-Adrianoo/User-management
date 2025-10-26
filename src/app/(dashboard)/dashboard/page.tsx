@@ -16,8 +16,6 @@ export default function DashboardPage() {
     }
   }, [user, isLoading, router]);
 
-  console.log("[DashboardPage] Tentando renderizar. Usuário:", user);
-  console.log("[DashboardPage] Permissões:", permissions);
 
   if (isLoading) {
     return (

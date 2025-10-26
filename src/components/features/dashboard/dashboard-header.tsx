@@ -39,7 +39,7 @@ export function DashboardHeader() {
           
           <div className="flex items-center gap-3">
             <Avatar className="w-9 h-9">
-              <AvatarImage src={user?.role} /> 
+              <AvatarImage src={""} /> 
               <AvatarFallback>{getInitials(user?.nome)}</AvatarFallback>
             </Avatar>
             <div className="text-sm">

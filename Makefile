@@ -17,7 +17,7 @@ help:
 	@echo "$(BLUE)Comandos disponíveis:$(RESET)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-15s$(RESET) %s\n", $$1, $$2}'
 
-up: 
+up: ## Inicia o ambiente de desenvolvimento
 	@if [ ! -f $(DB_FILE) ]; then \
 		echo "$(BLUE)Banco de dados não encontrado.$(RESET)"; \
 		read -p "Primeira vez rodando o projeto? (s/n) " -n 1 -r; \
@@ -42,7 +42,7 @@ up:
 		if [[ $$REPLY =~ ^[Ss]$$ ]]; then $(MAKE) seed; fi \
 	fi
 
-first-run: 
+first-run: ## Configura o projeto pela primeira vez
 	@echo "$(BLUE)═══════════════════════════════════════$(RESET)"
 	@echo "$(BLUE)  Configuração inicial do projeto$(RESET)"
 	@echo "$(BLUE)═══════════════════════════════════════$(RESET)"
@@ -64,24 +64,24 @@ first-run:
 	@echo "$(BLUE)Credenciais: admin@gmail.com$(RESET)"
 	@echo "$(BLUE)Senha: SenhaAdmin123@$(RESET)"
 
-down: 
+down: ## Para os containers
 	@echo "$(YELLOW)Parando containers...$(RESET)"
 	@$(COMPOSE) down
 	@echo "$(GREEN)Containers parados$(RESET)"
 
-restart: 
+restart: ## Reinicia os containers
 	@echo "$(YELLOW)Reiniciando containers...$(RESET)"
 	@$(COMPOSE) restart
 	@sleep 5
 	@$(MAKE) status
 	@echo "$(GREEN)Containers reiniciados$(RESET)"
 
-seed: 
+seed: ## Popula o banco de dados com dados de teste
 	@echo "$(YELLOW)Executando seed...$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) npx prisma db seed
 	@echo "$(GREEN)Seed concluído$(RESET)"
 
-reset: 
+reset: ## Reseta o banco de dados
 	@echo "$(RED)ATENÇÃO: Todos os dados serão apagados!$(RESET)"
 	@read -p "Confirmar? (s/n) " -n 1 -r; \
 	echo; \
@@ -90,43 +90,36 @@ reset:
 	  echo "$(GREEN)Banco resetado$(RESET)"; \
 	fi
 
-## Cria nova migration
-migrate: 
+migrate: ## Cria nova migration
 	@read -p "Nome da migration: " name; \
 	echo "$(YELLOW)Criando migration: $$name$(RESET)"; \
 	$(COMPOSE) exec $(SERVICE) npx prisma migrate dev --name $$name; \
 	echo "$(GREEN)Migration criada$(RESET)"
 
-## Atualiza Prisma Client após alterar schema.prisma
-schema-update: 
+schema-update: ## Atualiza Prisma Client após alterar schema.prisma
 	@echo "$(YELLOW)Regenerando Prisma Client...$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) npx prisma generate
 	@echo "$(GREEN)Prisma Client atualizado$(RESET)"
 	@echo "$(BLUE)Dica: Execute 'make restart' para aplicar as mudanças$(RESET)"
 
-## Abre Prisma Studio
-studio: 
+studio: ## Abre Prisma Studio
 	@echo "$(BLUE)Abrindo Prisma Studio...$(RESET)"
 	@echo "$(BLUE)Acesse: http://localhost:5555$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) npx prisma studio
 
-## Exibe logs em tempo real
-logs: 
+logs: ## Exibe logs em tempo real
 	@echo "$(YELLOW)Acompanhando logs (Ctrl+C para sair)...$(RESET)"
 	@$(COMPOSE) logs -f
 
-## Acessa shell do container
-shell: 
+shell: ## Acessa shell do container
 	@echo "$(YELLOW)Acessando shell do container...$(RESET)"
 	@$(COMPOSE) exec $(SERVICE) sh
 
-## Status dos containers
-status: 
+status: ## Status dos containers
 	@echo "$(BLUE)Status dos containers:$(RESET)"
 	@$(COMPOSE) ps
 
-## Reconstrói a imagem
-rebuild: 
+rebuild: ## Reconstrói a imagem
 	@echo "$(YELLOW)Reconstruindo imagem...$(RESET)"
 	@$(COMPOSE) down
 	@$(COMPOSE) build --no-cache
@@ -135,8 +128,7 @@ rebuild:
 	@$(MAKE) status
 	@echo "$(GREEN)Rebuild concluído$(RESET)"
 
-## Remove tudo (containers, volumes, imagens)
-clean: 
+clean: ## Remove tudo (containers, volumes, imagens)
 	@echo "$(RED)ATENÇÃO: Containers, volumes e imagens serão removidos!$(RESET)"
 	@read -p "Confirmar? (s/n) " -n 1 -r; \
 	echo; \
@@ -146,8 +138,7 @@ clean:
 	  echo "$(GREEN)Limpeza concluída$(RESET)"; \
 	fi
 
-## Instala pacote npm
-install: 
+install: ## Instala pacote npm
 	@read -p "Nome do pacote: " pkg; \
 	read -p "Dev dependency? (s/n) " -n 1 -r; \
 	echo; \
