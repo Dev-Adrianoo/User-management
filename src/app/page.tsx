@@ -4,7 +4,7 @@ export default function Home() {
 
   const isLoggedIn = false;
   if (!isLoggedIn) {
-    redirect('/singin');
+    redirect('/signin');
   }
 
   return (
